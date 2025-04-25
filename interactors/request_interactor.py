@@ -17,7 +17,7 @@ class RequestInteractor:
         :param url: The URL of the CSV file to download.\n
         :param save_loc: The location where the CSV file should be saved (without extension).\n
 
-        :return: True if the file was downloaded successfully, False otherwise.
+        :return: True if the file was downloaded successfully, False otherwise.\n
 
         :raises ValueError: If the file is not a CSV file.
         """
@@ -45,7 +45,7 @@ class RequestInteractor:
         :param url: The URL of the RDA file to download.\n
         :param save_loc: The location where the RDA file should be saved (without extension).  \n
 
-        :return: True if the file was downloaded successfully, False otherwise.   
+        :return: True if the file was downloaded successfully, False otherwise.   \n
 
         :raises ValueError: If the file is not a RDA file.   
         """
@@ -73,7 +73,7 @@ class RequestInteractor:
         :param url: The URL of the zip file to download.\n
         :param save_loc: The location where the zip file should be saved (without extension).\n
 
-        :return: True if the file was downloaded successfully, False otherwise.
+        :return: True if the file was downloaded successfully, False otherwise.\n
 
         :raises ValueError: If the file is not a zip file.
         """

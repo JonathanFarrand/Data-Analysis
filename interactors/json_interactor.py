@@ -94,7 +94,14 @@ class JSONInteractor:
         return results
     
     @staticmethod
-    def save_df_to_json(data, location):
+    def save_df_to_json(data: pd.DataFrame, location: str) -> None:
+        """
+        Save a pandas DataFrame to a JSON file.\n
+
+        :param data: The DataFrame to save.\n
+        :param location: The location where the JSON file should be saved (without extension).
+        
+        """
         if ".json" not in location:
             location += ".json"
         

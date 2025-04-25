@@ -11,12 +11,13 @@ class CSVInteractor:
     @staticmethod
     def get_csv(location: str) -> pd.DataFrame:
         """
-        Reads a CSV file from the specified location and returns it as a pandas DataFrame.
+        Reads a CSV file from the specified location and returns it as a pandas DataFrame.\n
 
-        :param location: The location of the CSV file (without extension).
+        :param location: The location of the CSV file (without extension).\n
         
-        :return: A pandas DataFrame containing the data from the CSV file.
-        :raises ValueError: If the location is not a string or if the file is not a CSV file.
+        :return: A pandas DataFrame containing the data from the CSV file.\n
+        
+        :raises ValueError: If the location is not a string or if the file is not a CSV file.\n
         :raises FileNotFoundError: If the file is not found.
         """
         if type(location) != str:
