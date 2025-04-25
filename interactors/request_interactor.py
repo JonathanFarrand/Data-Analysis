@@ -19,14 +19,11 @@ class RequestInteractor:
 
         :return: True if the file was downloaded successfully, False otherwise.\n
 
-        :raises ValueError: If the file is not a CSV file.
         """
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             if save_loc.endswith('.csv'):
                 save_loc = save_loc[:-4]
-            elif "." in save_loc:
-                raise ValueError("The file is not a CSV file.")
             
             with open(f"{save_loc}.csv", 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
@@ -46,15 +43,12 @@ class RequestInteractor:
         :param save_loc: The location where the RDA file should be saved (without extension).  \n
 
         :return: True if the file was downloaded successfully, False otherwise.   \n
-
-        :raises ValueError: If the file is not a RDA file.   
+  
         """
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             if save_loc.endswith('.rda'):
                 save_loc = save_loc[:-4]
-            elif "." in save_loc:
-                raise ValueError("The file is not a RDA file.")
             
             with open(f"{save_loc}.rda", 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
@@ -75,14 +69,11 @@ class RequestInteractor:
 
         :return: True if the file was downloaded successfully, False otherwise.\n
 
-        :raises ValueError: If the file is not a zip file.
         """
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             if save_loc.endswith('.zip'):
                 save_loc = save_loc[:-4]
-            elif "." in save_loc:
-                raise ValueError("The file is not a zip file.")
             
             with open(f"{save_loc}.zip", 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
@@ -101,12 +92,12 @@ class RequestInteractor:
 
         :return: True if successful, False otherwise.
 
+        :exception: If there is an error reading the file.
+
         """
 
         if save_path.endswith('.zip'):
             save_path = save_path[:-4]
-        elif "." in save_path:
-            raise ValueError("The file is not a zip file.")
         
         if save_path.endswith('/'):
             save_path = save_path[:-1]

@@ -17,7 +17,7 @@ class JSONInteractor:
     """
 
     @staticmethod
-    def load_json_file(file_path: str) -> dict:
+    def load_json_file_as_dict(file_path: str) -> dict:
         """
         Load a JSON file and return its content as a dictionary.\n
 
@@ -46,6 +46,37 @@ class JSONInteractor:
         except Exception as e:
             print(f"An unexpected error occurred while reading '{file_path}': {e}")
             return {}
+        
+    @staticmethod
+    def load_json_as_dataframe(file_path: str) -> pd.DataFrame:
+        """
+        Load a JSON file and return its content as a pandas DataFrame.\n
+
+        :param file_path: Path to the JSON file (without extension).\n
+
+        :return: DataFrame containing the JSON data.\n
+
+        :raises FileNotFoundError: If the file is not found.\n
+        :raises json.JSONDecodeError: If the file is not a valid JSON file.\n
+        :raises Exception: For any other exceptions that may occur.
+
+        """
+        try:
+            if ".json" not in file_path:
+                with open(f"{file_path}.json", 'r', encoding='utf-8') as file:
+                    return pd.json_normalize(json.load(file))
+            else:
+                with open(f"{file_path}", 'r', encoding='utf-8') as file:
+                    return pd.json_normalize(json.load(file))
+        except FileNotFoundError:
+            print(f"Warning: The file '{file_path}' was not found. Proceeding with an empty DataFrame.")
+            return pd.DataFrame()
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON from the file '{file_path}': {e}")
+            return pd.DataFrame()
+        except Exception as e:
+            print(f"An unexpected error occurred while reading '{file_path}': {e}")
+            return pd.DataFrame()
 
     @staticmethod
     def get_multiple_json_files(
@@ -77,7 +108,7 @@ class JSONInteractor:
         results: list = []
 
         for file_path in tqdm(json_files, desc="Loading JSON", unit="file"):
-            data = JSONInteractor.load_json_file(file_path)
+            data = JSONInteractor.load_json_file_as_dict(file_path)
             if data is not None:
                 results.append(data)
 
@@ -119,7 +150,6 @@ class JSONInteractor:
         :return: True if successful, False otherwise.\n
 
         :raises TypeError: If the data is not a dictionary.\n
-        :raises ValueError: If the file is not a JSON file.
         """
         try:
             if type(data) != dict:
@@ -127,8 +157,6 @@ class JSONInteractor:
             
             if location.endswith('.json'):
                 location = location[:-5]
-            elif "." in location:
-                raise ValueError("The file is not a JSON file.")
             elif location.endswith('/'):
                 location = location[:-1]
             

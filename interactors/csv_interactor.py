@@ -16,8 +16,7 @@ class CSVInteractor:
         :param location: The location of the CSV file (without extension).\n
         
         :return: A pandas DataFrame containing the data from the CSV file.\n
-        
-        :raises ValueError: If the location is not a string or if the file is not a CSV file.\n
+
         :raises FileNotFoundError: If the file is not found.
         """
         if type(location) != str:
@@ -26,8 +25,6 @@ class CSVInteractor:
             if location.endswith('.csv'):
                 with open(f'{location}', encoding='utf-8') as inputfile:
                     return pd.read_csv(inputfile)
-            elif "." in location:
-                raise ValueError("The file is not a CSV file.")
             else:
                 with open(f'{location}.csv', encoding='utf-8') as inputfile:
                     return pd.read_csv(inputfile)

@@ -22,13 +22,11 @@ class RInteractor:
 
         :return: The specified object as a pandas DataFrame, or None if an error occurs.\n
 
-        :raises ValueError: If the file is not a RDA file.
+        :exception: If there is an error reading the file.
         """
         try:
             if path.endswith('.rda'):
                 path = path[:-4]
-            elif "." in path:
-                raise ValueError("The file is not a RDA file.")
             
             df = pyreadr.read_r(f"{path}.rda", use_objects=[object_name])
             return df
@@ -45,7 +43,7 @@ class RInteractor:
         :param object_name: Name of the object to extract from the RDA file.\n
 
         :return: None\n
-        :raises ValueError: If the file is not a RDA file.
+        ::exception: If there is an error reading the file.
         
         """
         df: OrderedDict = RInteractor.get_rda_data(path, "player_meta")
