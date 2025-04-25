@@ -18,9 +18,16 @@ class RequestInteractor:
         :param save_loc: The location where the CSV file should be saved (without extension).\n
 
         :return: True if the file was downloaded successfully, False otherwise.
+
+        :raises ValueError: If the file is not a CSV file.
         """
         response = requests.get(url, stream=True)
         if response.status_code == 200:
+            if save_loc.endswith('.csv'):
+                save_loc = save_loc[:-4]
+            elif "." in save_loc:
+                raise ValueError("The file is not a CSV file.")
+            
             with open(f"{save_loc}.csv", 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
             print(f"Downloaded file to {save_loc}.csv")
@@ -38,10 +45,17 @@ class RequestInteractor:
         :param url: The URL of the RDA file to download.\n
         :param save_loc: The location where the RDA file should be saved (without extension).  \n
 
-        :return: True if the file was downloaded successfully, False otherwise.      
+        :return: True if the file was downloaded successfully, False otherwise.   
+
+        :raises ValueError: If the file is not a RDA file.   
         """
         response = requests.get(url, stream=True)
         if response.status_code == 200:
+            if save_loc.endswith('.rda'):
+                save_loc = save_loc[:-4]
+            elif "." in save_loc:
+                raise ValueError("The file is not a RDA file.")
+            
             with open(f"{save_loc}.rda", 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
             print(f"Downloaded file to {save_loc}.rda")
@@ -60,9 +74,16 @@ class RequestInteractor:
         :param save_loc: The location where the zip file should be saved (without extension).\n
 
         :return: True if the file was downloaded successfully, False otherwise.
+
+        :raises ValueError: If the file is not a zip file.
         """
         response = requests.get(url, stream=True)
         if response.status_code == 200:
+            if save_loc.endswith('.zip'):
+                save_loc = save_loc[:-4]
+            elif "." in save_loc:
+                raise ValueError("The file is not a zip file.")
+            
             with open(f"{save_loc}.zip", 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
             print(f"Downloaded file to {save_loc}.zip")
@@ -79,10 +100,18 @@ class RequestInteractor:
         :param save_path: The location where the zip file should be saved (without extension).\n
 
         :return: True if successful, False otherwise.
+
         """
 
-        """Downloads a zip from `url` to `{save_path}.zip` and unpacks it into `save_path/`."""
-
+        if save_path.endswith('.zip'):
+            save_path = save_path[:-4]
+        elif "." in save_path:
+            raise ValueError("The file is not a zip file.")
+        
+        if save_path.endswith('/'):
+            save_path = save_path[:-1]
+        
+        
         zip_file = f"{save_path}.zip"
         extract_dir = save_path  
         
