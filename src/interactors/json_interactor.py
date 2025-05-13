@@ -110,6 +110,7 @@ class JSONInteractor:
         for file_path in tqdm(json_files, desc="Loading JSON", unit="file"):
             data = JSONInteractor.load_json_file_as_dict(file_path)
             if data is not None:
+                data["file_name"] = file_path
                 results.append(data)
 
         elapsed = time.perf_counter() - start_time

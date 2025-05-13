@@ -11,6 +11,7 @@ MATCH_DATA_FILE_PATH = "./data/setup/matches"
 PLAYER_INFO_FILE_PATH = "./data/setup/other/player_data"
 PLAYER_ROLE_FILE_PATH = "./data/setup/other/player_roles"
 SCRAP_PLAYER_DATA_FILE_PATH = "./data/setup/other/scrap_player_data"
+BALL_BY_BALL_FILE_PATH = "./data/setup/created/ball_by_ball"
 
 DIRECTORIES_TO_CREATE = ["./data", "./data/setup", "./data/setup/other", "./data/setup/matches", "./data/setup/created"]
 

@@ -1,12 +1,14 @@
 
-from config import NAME_DATA_URL, NAME_DATA_FILE_PATH, PLAYER_DATA_FILE_PATH, PLAYER_DATA_URL, \
-    MATCH_DATA_FILE_PATH, MATCH_DATA_URL, DIRECTORIES_TO_CREATE, ROLE_DATA_URL, PLAYER_ROLE_FILE_PATH
-from interactors.csv_interactor import CSVInteractor
-from interactors.request_interactor import RequestInteractor
-from interactors.json_interactor import JSONInteractor
-from interactors.r_interactor import RInteractor
+from .config import NAME_DATA_URL, NAME_DATA_FILE_PATH, PLAYER_DATA_FILE_PATH, PLAYER_DATA_URL, \
+    MATCH_DATA_FILE_PATH, MATCH_DATA_URL, DIRECTORIES_TO_CREATE, ROLE_DATA_URL, PLAYER_ROLE_FILE_PATH, BALL_BY_BALL_FILE_PATH
+from .interactors.csv_interactor import CSVInteractor
+from .interactors.request_interactor import RequestInteractor
+from .interactors.json_interactor import JSONInteractor
+from .interactors.r_interactor import RInteractor
+from tqdm import tqdm
 import pandas as pd
 import os
+from src.specialised.cricket_data_transformer.match_data import MatchData
 
 class Setup:
     """
@@ -24,15 +26,20 @@ class Setup:
         if setup:
             update = setup
             for directory in DIRECTORIES_TO_CREATE:
-                os.makedirs(directory)
+                try:
+                    os.makedirs(directory)
+                except:
+                    pass
 
         self.player_name_data = None
         self.player_id_data = None
         self.matches_data = None
         self.player_roles = None
+        self.ball_by_ball = None
 
         if update:
             self.update_files()
+            self.json_to_ball_by_ball()
         pass
 
     def get_player_name_data(self, update: bool = False) -> pd.DataFrame:
@@ -69,7 +76,7 @@ class Setup:
             self.player_id_data = CSVInteractor.get_csv(PLAYER_DATA_FILE_PATH)
         return self.player_id_data
 
-    def get_match_data(self, update: bool = False) -> pd.DataFrame:
+    def get_match_data(self, update: bool = False) -> [dict]:
         """
         Returns all the match data as a pandas DataFrame.\n
         If the data is not already loaded, it will be retrieved from the specified file.\n
@@ -84,7 +91,7 @@ class Setup:
         if update:
             RequestInteractor.download_and_extract_zip(MATCH_DATA_URL, MATCH_DATA_FILE_PATH)
         if self.matches_data is None:
-            self.matches_data = JSONInteractor.get_multiple_json_files(MATCH_DATA_FILE_PATH, True)
+            self.matches_data = JSONInteractor.get_multiple_json_files(MATCH_DATA_FILE_PATH, False)
         return self.matches_data
     
     def get_player_role_data(self, update: bool = False) -> pd.DataFrame:
@@ -114,12 +121,55 @@ class Setup:
         self.get_player_id_data(True)
         self.get_match_data(True)
         self.get_player_role_data(True)
-        
+    
 
-        
+
+    def json_to_ball_by_ball_method(self, setup) -> pd.DataFrame:
+        data_list = []
+        matches = self.get_match_data()
+        columns = None
+
+        try:
+            for game in tqdm(matches, desc="Processing Matches"):
+                try:
+                    curMatch = MatchData(game)
+                    for ball in curMatch._ball_dict.values():
+                        if columns == None:
+                            columns = curMatch._ball_by_ball_data_structure().keys()
+
+                        data_list.append(ball)
+                except Exception as match_error:
+                    print(f"Skipping problematic match file: {game.get('file_name', 'Unknown file')} due to error: {match_error}")
+
+        except Exception as e:
+            print(f"Unexpected fatal error: {e}")
+            raise ValueError() from e
+
+        data = pd.DataFrame(data_list, columns=columns)
+
+        data.to_feather(f"{BALL_BY_BALL_FILE_PATH}.feather")
+
+        return data
+
+    def get_ball_by_ball(self):
+        """
+        Returns the ball-by-ball data as a pandas DataFrame.\n
+        If the data is not already loaded, it will be retrieved from the specified file.\n
+        If update is True, the data will be downloaded again from the URL.\n
+
+        :param update: If True, updates the ball-by-ball data file from the specified URL.\n
+
+        :return: A pandas DataFrame containing the ball-by-ball role data.\n
+
+        :raises FileNotFoundError: If the file is not found.
+        """
+        if self.ball_by_ball is None:
+            self.ball_by_ball = pd.read_feather(f"{BALL_BY_BALL_FILE_PATH}.feather")
+        return self.ball_by_ball
 
         
 
 
 if __name__ == "__main__":
+    Setup().json_to_ball_by_ball_method(False)
     pass
