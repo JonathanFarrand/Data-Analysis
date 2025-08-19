@@ -127,17 +127,46 @@ class Setup:
     def json_to_ball_by_ball_method(self, setup) -> pd.DataFrame:
         data_list = []
         matches = self.get_match_data()
+        col_check = False
         columns = None
+        t20_dict = dict()
+        mdm_dict = dict()
+        od_dict = dict()
+
+        t20_counter  = 0
+        mdm_counter  = 0
+        od_counter  = 0
 
         try:
             for game in tqdm(matches, desc="Processing Matches"):
                 try:
                     curMatch = MatchData(game)
-                    for ball in curMatch._ball_dict.values():
-                        if columns == None:
-                            columns = curMatch._ball_by_ball_data_structure().keys()
+                    ball_data = curMatch.ball_data
+                    if "t20" in curMatch.ball_data[0]["match_type"]:
+                        for ball in curMatch.ball_data.values():
+                            if not col_check:
+                                columns = curMatch.get_dataframe().columns
+                                col_check = True
+                            
+                            t20_dict[t20_counter] = ball
+                            t20_counter += 1
+                    elif "od" in curMatch.ball_data[0]["match_type"]:
+                        for ball in curMatch.ball_data.values():
+                            if not col_check:
+                                columns = curMatch.get_dataframe().columns
+                                col_check = True
+                            od_dict[od_counter] = ball
+                            od_counter += 1
+                    else:
+                        for ball in curMatch.ball_data.values():
+                            if not col_check:
+                                columns = curMatch.get_dataframe().columns
+                                col_check = True
+                            mdm_dict[mdm_counter] = ball
+                            mdm_counter += 1
 
-                        data_list.append(ball)
+
+
                 except Exception as match_error:
                     print(f"Skipping problematic match file: {game.get('file_name', 'Unknown file')} due to error: {match_error}")
 
@@ -145,11 +174,25 @@ class Setup:
             print(f"Unexpected fatal error: {e}")
             raise ValueError() from e
 
-        data = pd.DataFrame(data_list, columns=columns)
+        t20_data = pd.DataFrame.from_dict(t20_dict, orient='index', columns=columns)
+        od_data = pd.DataFrame.from_dict(od_dict, orient='index', columns=columns)
+        mdm_data = pd.DataFrame.from_dict(mdm_dict, orient='index', columns=columns)
 
-        data.to_feather(f"{BALL_BY_BALL_FILE_PATH}.feather")
 
-        return data
+        print("Created df for each format")
+
+        for col in t20_data.select_dtypes(include='number').columns:
+            t20_data[col] = pd.to_numeric(t20_data[col], downcast='integer')
+            od_data[col] = pd.to_numeric(od_data[col], downcast='integer')
+            mdm_data[col] = pd.to_numeric(mdm_data[col], downcast='integer')
+
+        print("Downsized df")
+
+        t20_data.to_feather(f"{BALL_BY_BALL_FILE_PATH}t20.feather")
+        od_data.to_feather(f"{BALL_BY_BALL_FILE_PATH}od.feather")
+        mdm_data.to_feather(f"{BALL_BY_BALL_FILE_PATH}mdm.feather")
+
+        return None
 
     def get_ball_by_ball(self):
         """
