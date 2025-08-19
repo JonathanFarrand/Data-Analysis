@@ -1,0 +1,340 @@
+---
+title: "Cricket Analysis"
+author: "Jonathan Farrand"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+Import Libraries
+
+```{r}
+library(arrow)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(ggrepel)
+library(tidyr)
+```
+
+Set Paths
+
+```{r}
+path_ball <- "C:/Users/jonat/OneDrive/Documents/GitHub/Data-Analysis/data/setup/created/ball_by_ball.feather"
+path_players <- "../data/setup/other/player_roles.rda"
+
+```
+
+Get Data
+
+```{r}
+ball_data <- read_feather(path_ball)
+#role_data <- load(path_players)
+```
+
+Add name, bat_type and bowl_type information to the ball_data
+
+```{r}
+player_meta_unique <- player_meta %>%
+  distinct(cricsheet_id, .keep_all = TRUE)  
+
+ball_data <- ball_data %>%
+  left_join(player_meta_unique %>% select(cricsheet_id, batting_style), 
+            by = c("batter" = "cricsheet_id")) %>%
+  left_join(player_meta_unique %>% select(cricsheet_id, bowling_style), 
+            by = c("bowler" = "cricsheet_id"))
+```
+
+Add name for batters and bowlers
+
+```{r}
+ball_data <- ball_data %>%   
+  left_join(player_meta_unique %>% 
+  select(cricsheet_id, bat_name = full_name),     
+  by = c("batter" = "cricsheet_id")   )  
+ball_data <- ball_data %>%   
+  left_join(player_meta_unique %>% 
+   select(cricsheet_id, bowl_name = full_name), 
+      by = c("bowler" = "cricsheet_id")   )
+```
+
+Add team Total
+
+```{r}
+ball_data <- ball_data %>%
+  group_by(match_id, inn_num) %>%
+  mutate(final_score = max(total_runs)) %>%
+  ungroup()
+```
+
+Seperate into t20, od, mdm
+
+```{r}
+unique(ball_data$match_type)
+
+t20 <- ball_data %>%
+  filter(ball_data$match_type %in% c("t20", "it20"))
+
+od <- ball_data %>%
+  filter(ball_data$match_type %in% c("odi", "odm"))
+
+mdm <- ball_data %>%
+  filter(ball_data$match_type %in% c("test", "mdm"))
+```
+
+Group by players in t20
+
+```{r}
+player_grouped <- t20 %>%
+  group_by(bat_name) %>%
+  summarise(
+    balls_faced = n(),
+    runs_scored = sum(bat_outcome, na.rm = TRUE),
+    dismissals = sum(batter == player_out, na.rm = TRUE),
+    rpb = 100 * runs_scored / balls_faced,
+    bpd = 100 / (balls_faced / dismissals)
+  ) %>%
+  filter(balls_faced > 20) %>%
+  filter(dismissals > 0)
+
+
+```
+
+Plot t20 players
+
+```{r}
+# Assuming 'player_grouped' contains the necessary data with 'rpb' and 'bpd'
+
+ggplot(player_grouped, aes(x = rpb, y = bpd)) +
+  geom_point(alpha = 0.6, color = "darkgreen") +  # Scatter plot with points
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit (linear regression)
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +  # Vertical line to divide quadrants
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +  # Horizontal line to divide quadrants
+  labs(title = "Runs per Ball vs Dismissals per 100 Balls", 
+       x = "Runs Per Ball (rpb)", 
+       y = "Dismissals Per 100 Balls (bpd)") +
+  theme_minimal() +
+  theme(legend.position = "none")  # Optional: Remove the legend if not needed
+```
+
+Group balls by competition (event) (male) (domestic)
+
+```{r}
+t20_leagues <- t20 %>%
+  filter(gender=="male") %>%
+  filter(team_type=="club") %>%
+  group_by(event)
+
+leagues <- unique(t20_leagues$event)
+leagues
+
+bbl_players <- t20_leagues %>%
+  filter(event == "big bash league") %>%
+  group_by(bat_name, season) %>%
+  summarise(
+    balls_faced = n(),
+    runs_scored = sum(bat_outcome, na.rm = TRUE),
+    dismissals = sum(batter == player_out, na.rm = TRUE),
+    sr = 100 * runs_scored / balls_faced,
+    dp100 = 100 / (balls_faced / dismissals)
+  )
+```
+
+Display performers in "big bash league" and "indian premier league"
+
+```{r}
+ggplot(
+  bbl_players %>%
+    filter(balls_faced > 120, dismissals > 0),
+  aes(x = sr, y = dp100)
+) +
+  geom_point(alpha = 0.6, color = "darkgreen") +  # Plot all players
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  
+  # Only label players meeting condition (e.g., rpb > 150 or bpd < 15)
+  geom_text_repel(
+    data = bbl_players %>%
+      filter(balls_faced > 30, dismissals > 0) %>%
+      filter(sr > 150 & dp100 < 7),
+    aes(label = paste0(bat_name, " ", season)),
+    size = 3
+  ) +
+  
+  labs(
+    title = "Runs per Ball vs Dismissals per 100 Balls",
+    x = "Runs Per Ball (rpb)",
+    y = "Dismissals Per 100 Balls (bpd)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+top_bbl_players <- bbl_players %>%
+  filter(sr > 150 & dp100 < 7 & balls_faced > 30) %>%
+  arrange(desc(sr))
+
+top_bbl_players
+
+```
+
+Calculate Ladder
+
+```{r}
+matches <- t20_leagues %>%
+  distinct(match_id, .keep_all = TRUE)
+
+
+# Step 2: Reshape so each team has its own row
+matches_long <- matches %>%
+  pivot_longer(cols = c(bat_team, bowl_team), 
+               names_to = "bat_or_bowl", 
+               values_to = "team")
+
+# Step 3: Calculate ladder
+ladder <- matches_long %>%
+  group_by(team, season) %>%
+  summarise(
+    games = n(),
+    wins = sum(winner == team, na.rm = TRUE),
+    draws = sum(winner == "None", na.rm = TRUE),
+    losses = games - wins - draws,
+    pct = ((wins + 0.5*draws) / (games)),
+    .groups = "drop"
+  )
+
+unique(matches$result)
+```
+
+Get 5 batters who faced the most balls for each team
+
+-   Group by: batter, team, season
+
+```{r}
+
+players_summarised <- t20 %>%
+  group_by(batter, bat_team, season) %>%
+  summarise(
+    balls_faced = n(),
+    runs_scored = sum(bat_outcome, na.rm = TRUE),
+    dismissals = sum(batter == player_out, na.rm = TRUE),
+    dots = sum(bat_outcome == 0),
+    fours = sum(bat_outcome == 4),
+    sixes = sum(bat_outcome == 6),
+    
+    rpb = 100 * runs_scored / balls_faced,
+    bpd = 100 / (balls_faced / dismissals),
+    average = runs_scored / dismissals,
+    
+    bound_pct = (6*sixes + 4*fours) / runs_scored,
+    dot_pct = dots / balls_faced
+    
+  )
+```
+
+Get top 5 batters for each team (by balls faced)
+
+```{r}
+top_batters <- players_summarised %>%
+  group_by(bat_team, season) %>%
+  slice_max(order_by = balls_faced, n = 5, with_ties = FALSE) %>%
+  ungroup()
+
+
+team_performance <- top_batters %>%
+  group_by(bat_team, season) %>%
+  summarise(
+    tot_balls = sum(balls_faced),
+    tot_runs = sum(runs_scored),
+    tot_dismissals = sum(dismissals),
+    dots = sum(dots),
+    fours = sum(fours),
+    sixes = sum(sixes),
+    
+    sr = 100 * tot_runs / tot_balls,
+    dp100 = 100 / (tot_balls / tot_dismissals),
+    avg = tot_runs / tot_dismissals,
+    rpi = min(sr*1.2, 10*avg),
+    
+    bound_pct = (6*sixes + 4*fours) / tot_runs,
+    dot_pct = dots / tot_balls
+  )
+```
+
+Join team_performance with the season win percentage
+
+```{r}
+team_performance <- team_performance %>%
+  left_join(
+    ladder %>% select(bat_team = team, season, games, pct), 
+    by = c("bat_team", "season")
+  )
+```
+
+Plot different comparisons
+
+```{r}
+ggplot(
+  team_performance %>%
+    filter(games > 5),
+  aes(x = rpi, y = pct)
+) +
+  geom_point(alpha = 0.6, color = "darkgreen") +  # Plot all teams
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  
+  # Label only teams with pct > 0.75
+  geom_text_repel(
+    data = team_performance %>%
+      filter(pct > 0.75),
+    aes(x = rpi, y = pct, label = paste0(bat_team, " ", season)), 
+    size = 3
+  ) +
+  
+  labs(
+    title = "Runs per Innings vs Win Percentage",
+    x = "Runs Per Innings (rpi)",
+    y = "Win Percentage"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Models
+
+```{r}
+linear_model <- lm(pct~rpi, team_performance)
+summary(linear_model)
+
+mylogit <- glm(pct ~ dot_pct + bound_pct + dp100, data = team_performance, family = "binomial")
+summary(mylogit)
+```
+
+Filter to just male and domestic
+
+Add Column for balls left
+
+```{r}
+expected_runs_df <- t20_leagues %>%
+  filter(wickets_remaining >= 0) %>%
+  filter(balls_remaining >= 0) %>%
+  group_by(balls_remaining, wickets_remaining, total_runs) %>%
+  summarise(expected_added_runs = mean(final_score - total_runs, na.rm = TRUE),
+            n = n()) %>%
+  ungroup() %>%
+  arrange(desc(balls_remaining), total_runs)
+
+```
+
+Save desired data
+
+```{r}
+path_to_feather = 
+write_feather(expected_runs_df, )
+```
