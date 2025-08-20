@@ -1,3 +1,4 @@
+*docs
 /data
 *interactors/__pycache__/
 *.pyc
