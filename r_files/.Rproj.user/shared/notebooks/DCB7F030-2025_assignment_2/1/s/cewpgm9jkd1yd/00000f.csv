@@ -1,0 +1,6 @@
+"0","Miyazaki.indices = grep(""Totoro|Mononoke|Spirited"", ratings$title)"
+"0","mean(ratings$avg.rating[Miyazaki.indices])"
+"1","[1]"
+"1"," 4.024322"
+"1","
+"

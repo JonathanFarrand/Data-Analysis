@@ -1,0 +1,2 @@
+"0","data.movies = read_csv(""movies.csv"")"
+"0","data.ratings = read_csv(""ratings.csv"")"

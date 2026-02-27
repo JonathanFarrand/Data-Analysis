@@ -1,0 +1,105 @@
+[
+    {
+        "id":"772407",
+        "name":"Alex Adrian Anthony Amsterdam",
+        "dob":"June 08, 1991, Berbice, Guyana",
+        "role":"Top order Batter",
+        "bat_style":"Left hand Bat",
+        "bowl_style":"Right arm Offbreak",
+        "fielding_position":null,
+        "major_teams":[
+            "United States of America",
+            "New York Region"
+        ]
+    },
+    {
+        "id":"380588",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"661441",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"1163136",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"474307",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"524897",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"1123075",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"590021",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"398519",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    },
+    {
+        "id":"959617",
+        "name":null,
+        "dob":null,
+        "role":null,
+        "bat_style":null,
+        "bowl_style":null,
+        "fielding_position":null,
+        "major_teams":null
+    }
+]

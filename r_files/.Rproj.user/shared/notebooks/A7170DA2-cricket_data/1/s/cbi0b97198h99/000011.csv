@@ -1,0 +1,2 @@
+"0","ball_data <- read_feather(path_ball)"
+"0","role_data <- load(path_players)"

@@ -1,0 +1,3 @@
+"0","arrange(hold_data, desc(`1`)) %>%"
+"0","  select(`1`, title, main.genre) %>%"
+"0","  head(hold_data, n=3)"

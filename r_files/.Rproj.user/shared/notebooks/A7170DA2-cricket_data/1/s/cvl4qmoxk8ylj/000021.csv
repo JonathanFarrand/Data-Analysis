@@ -1,0 +1,8 @@
+"0","player_meta_unique <- player_meta %>%"
+"0","  distinct(cricsheet_id, .keep_all = TRUE)  "
+"0",""
+"0","ball_data <- ball_data %>%"
+"0","  left_join(player_meta_unique %>% select(cricsheet_id, batting_style), "
+"0","            by = c(""batter"" = ""cricsheet_id"")) %>%"
+"0","  left_join(player_meta_unique %>% select(cricsheet_id, bowling_style), "
+"0","            by = c(""bowler"" = ""cricsheet_id""))"

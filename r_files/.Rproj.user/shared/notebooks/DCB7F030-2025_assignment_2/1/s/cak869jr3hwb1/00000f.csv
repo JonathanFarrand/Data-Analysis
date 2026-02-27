@@ -1,0 +1,4 @@
+"0","set.seed(123) # NOTE: don't remove this."
+"0",""
+"0","X = as.matrix(ratings.wide[,-1])"
+"0","res = kmeans(X , centers = 5)"

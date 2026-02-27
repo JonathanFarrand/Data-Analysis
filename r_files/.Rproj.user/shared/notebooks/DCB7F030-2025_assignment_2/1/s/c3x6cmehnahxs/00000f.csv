@@ -1,0 +1,8 @@
+"0","year.parens = str_extract(data.movies$title, ""\\(\\d{4}\\)"")"
+"0","year = as.integer(str_replace_all(year.parens, ""[()]"", """"))"
+"0","min(year, na.rm=TRUE)"
+"1","[1]"
+"1"," 1902"
+"1","
+"
+"0","# ... what is the earliest year?"

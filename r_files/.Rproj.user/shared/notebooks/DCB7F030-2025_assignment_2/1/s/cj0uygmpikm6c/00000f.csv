@@ -1,0 +1,4 @@
+"0","ratings = data.ratings %>%"
+"0","  group_by(movieId) %>%"
+"0","  summarise(avg.rating = mean(rating), sd.rating = sd(rating))"
+"0","head(ratings)"

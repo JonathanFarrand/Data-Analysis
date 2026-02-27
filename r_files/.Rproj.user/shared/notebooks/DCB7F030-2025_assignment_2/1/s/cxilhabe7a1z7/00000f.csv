@@ -1,0 +1,5 @@
+"0","# Here is some suggested code:"
+"0","data.ratings = data.ratings %>%"
+"0","  group_by(movieId) %>%"
+"0","  mutate(num.ratings = n()) %>%"
+"0","  filter(num.ratings >= 25)"
