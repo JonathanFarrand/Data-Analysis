@@ -1,0 +1,311 @@
+---
+title: 'ETC1010-5510: Introduction to Data Analysis Assignment 2'
+author: "Your name"
+output: html
+---
+
+```{r setup, include = TRUE, echo = FALSE, cache = FALSE}
+
+# Please do not touch this R code chunk!
+knitr::opts_chunk$set(
+  echo = TRUE,
+  eval = TRUE,
+  out.width = "70%",
+  fig.width = 8, 
+  fig.height = 6,
+  fig.retina = 3)
+set.seed(6)
+```
+
+
+
+## Instructions to Students
+
+**This is an individual assignment and you must work on it on your own. Collaboration on the assignment constitute collusion. For more on collusion and misconduct please see this [webpage.](https://connect.monash.edu/s/article/FAQ-2144) ** 
+
+You have just joined a **movie streaming startup** as a data scientist. The company plans to offer a curated selection of movies available for streaming on TVs/laptops/iPads etc.
+
+One of the company's core technologies is its movie recommendation system. Your team lead, a research scientist with a PhD in recommendation systems, needs your help to do some exploratory research and analysis. Your team lead has suggested you start by looking at movie ratings data from [MovieLens](http://movielens.org) in order to familiarize yourself with this type of data and to conduct some basic research. *MovieLens* is a publicly available dataset for research use. Attached to this assignment you'll find a *small* version of the dataset from http://grouplens.org/datasets that contains around 100 000 ratings for ca 10 000 movies.
+
+This assignment is structured as a gradual walkthrough of the kind of analysis you could perform on this type of data set, we'll guide you through step-by-step but with you doing the actual work.
+
+Please make sure you read the hints throughout the assignment to help guide you on the tasks.
+
+The points allocated for each of the elements in the assignment are marked in the questions and in certain cases, code scaffolding has been provided. However, if you feel this scaffolding is unhelpful, you are not obliged to use it. 
+
+## General coding / debugging hints
+
+* If you experience errors when rendering, it is often good to step through the document one chunk at a time, starting at the very beginning.
+
+* Save and re-render often. Writing a lot of code before executing anything will often lead to headaches (e.g., write one simple command as part of your answer, re-run everything, rinse-and-repeat.)
+
+
+## Marking + Grades
+
+This assignment will be worth **15%** of your total grade.
+
+For this assignment, you will need to upload the following into Moodle:
+
+ - The rendered html file **saved as a pdf**. The assignment will be only marked if the pdf is uploaded in Moodle. **The submitted assignment pdf file must have all the code and output visible.**
+      
+-  To complete the assignment, you will need to fill in the blanks with appropriate R code for some questions. These sections are marked with  `___`. For other questions, you will need to write the entire R code chunk. 
+
+- **At a minimum, your assignment should be able to be "knitted"** using the `Knit` button for your Rmarkdown document so that you can produce a html file that you will save as pdf file and upload it into Moodle. 
+
+If you want to look at what the assignment looks like as you progress , remember that you can set the R chunk options to `eval = FALSE` like so to ensure that you can knit the file:
+
+````markdown
+```{r this-chunk-will-not-run, eval = FALSE} `r''`
+a <- 1 + 2
+```
+````
+
+**If you use `eval = FALSE` or `echo = FALSE`, please remember to ensure that you have set  to `eval = TRUE` and `echo = TRUE` when you submit the assignment, to ensure all your R codes run.**
+
+**IMPORTANT: You must use R code to answer all the questions in the report.**
+
+## Due Date
+
+This assignment is due on Friday, 30 May 2025, 11:55 PM. You will submit the knitted html file **saved as a pdf**  via Moodle. Please make sure you add your name on the YAML part of the Rmd file before you knit it and save it as pdf.
+
+## How to find help from R functions?
+
+Remember, you can look up the help file for functions by typing: `?function_name`. For example, `?mean`. 
+
+
+
+## Load all the libraries that you need here
+
+```{r libraries, eval = TRUE, message = FALSE, warning = FALSE}
+library(tidyverse)
+```
+
+
+
+## Read in the data
+
+The Movielens data consists of 2 csv files, let's start by reading them into R.
+
+```{r, message=FALSE}
+data.movies = read_csv("movies.csv")
+data.ratings = read_csv("ratings.csv")
+```
+
+
+The file `data.movies` contains 3 variables with information about every movie:
+
+- `movieId`: a positive consecutive integer 1, 2, ..., that uniquely identifies the movie.
+- `title`: a text string with the name of the movie as well as year in parenthesis.
+- `genres`: a text string with the movie genre(s), multiple genres are separated with the pipe `|` symbol.
+
+The first few rows of this dataset looks like:
+```{r}
+head(data.movies)
+```
+
+The file `data.ratings` contains 3 variables that record what rating a user gave for a particular movie:
+
+- `userId`: a positive consecutive integer that uniquely identifies the user.
+- `movieId`: a positive consecutive integer that uniquely identifies the movie.
+- `rating`: A numeric value that ranges between 0.5 to 5 recording the rating.
+
+In this data set, the pair (`userId`, `movieId`) uniquely identifies the rating the user with a given id gave to a specific movie.
+
+The first few rows of this dataset looks like   :
+```{r}
+head(data.ratings)
+```
+
+## Question 1  
+How many movies are there in the `data.movies` data set? **(1pt)**.
+
+
+## Question 2
+How many unique movies are there in the `data.ratings` file? **(1pt)**. (HINT: look at number of unique values of `movieId`).
+
+
+## Question 3
+Based on the two previous answers, we can infer that the file `data.ratings` does not record ratings for every single movie in `data.movies`. How many movies listed in `data.movies` does not have a rating recorded? **(1pt)**
+
+
+
+## Question 4
+The variable `genres` in `data.movies` contains information on many genres. Let's simplify things and choose the first entry in this string as the "main" genre.
+
+Use the `separate` command to create a new column in `data.movies` called `main.genre`, and print the first rows of this data frame using `head()`. Hint: you can set the `sep` argument to `separate` to `"\\|"` and the `extra` argument to `"drop"`. **(1pt)**
+
+```{r}
+# data.movies =
+  # data.movies %>%
+  # separate(genres, into =..., sep = ..., extra = "drop")
+```
+
+
+## Question 5
+What are the most 3 most common main genres in the `data.movies` dataset? **(1pt)**
+
+
+
+## Question 6
+In the variable `title` it seems like the year is placed at the end in parenthesis, let's try to find what year the oldest movie was made. We can use the `str_extract` function to pick out the "(YYYY)" part of the title, then `str_replace_all` to remove the parenthesis, then convert to integers. (Note: if some titles don't follow the "(1991)" format at the end, we'll see `NA` values in some entries, we can ignore these here). What year was the oldest movie made? **(2pts)**            
+
+```{r}
+year.parens = str_extract(data.movies$title, "\\(\\d{4}\\)")
+year = as.integer(str_replace_all(year.parens, "[()]", ""))
+# ... what is the earliest year?
+```
+
+
+
+## Question 7
+Using the answer above, what is the name and main genre of the oldest movie(s)? **(2pts)**
+
+```{r}
+# Find the row number in data.movies (replace 1908 with the year you found above)
+year.index = which(year == 1908) 
+# Then, pick out this row number in the data.movies data frame...
+```
+
+
+## Question 8
+
+Your team lead is interested in average ratings. Before proceeding, she recommends that you restrict your data set to movies that have been rated by at least 25 users. Filter the `data.ratings` data frame to contain only movies that have been rated by at least (>=) 25 users. **(2pts)**
+
+```{r}
+# Here is some suggested code:
+# data.ratings = data.ratings %>%
+  # group_by(?) %>%
+  # mutate(num.ratings = ?) %>%
+  # filter(num.ratings >= 25)
+```
+
+
+## Question 9
+
+How many unique movies are left in the ratings data set now? **(1pt)**
+
+
+## Question 10
+
+Create a new data frame called `ratings` that have columns: `movieId`: the id of the movie, `avg.rating`: the average `rating`, `sd.rating`: the standard deviation of `rating`. Print the first 6 rows of this data. **(2pts)**
+
+```{r}
+# ratings = data.ratings %>%
+  # group_by(?) %>%
+  # summarise(?, ?)
+```
+
+
+
+## Question 11
+
+Before looking closer at ratings, it is useful to add some information from the `data.movies` data frame. Do a left join, overwriting the `ratings` data frame, where the left hand side is `ratings`, the right and side is `data.movies[c("movieId", "title", "main.genre")]` and the merge key is `movieId`. Print the first 6 rows. **(2pts)**
+
+```{r}
+# ratings =
+  # left_join(
+    # ?,
+    # ?,
+    # ?
+  # )
+```
+
+
+## Question 12
+
+What are the names of the highest and lowest rated movie? **(1pt)**
+
+
+## Question 13
+
+The variable `sd.rating` can be seen as a measure of how dispersed the viewer's opinion of a movie is. Which movie has the least dispersion in ratings? Hint: if you did the steps correctly, you should find a movie where the plot centers around the famous "Watergate scandal". **(1pt)**
+
+
+## Question 14
+
+"Totoro", "Princess Mononoke", and "Spirited Away" are famous movies by the Japanese animator Hayao Miyazaki. What is the average rating for these 3 movies? **(2pts)**
+
+Hint: the function `grep(pattern, x)` returns indicies in the vector `x` that matches the strings in `pattern`. With the pattern `"Totoro|Mononoke|Spirited"` and `x` `"ratings$title"` you could search for the indices for these 3 movies.
+
+
+## Question 15
+
+Your team lead is interesting in using this data to build movie recommendations. You told her about the K-means clustering algorithm, and she suggests a way you could try it out on the ratings dataset.
+
+The current `data.ratings` data contains ratings by 610 users for 1 051 movies. We can represent this data as a 610 x 1051 dimensional matrix where entry (i, j) contains user i's `rating` for the j'th movie. If a user hasn't rated a movie, we can set the entry to 0. 
+
+The idea is that this matrix can be used for clustering: each user (row) is described by a high-dimensional vector, their 1051-dimensional vectors of ratings. The idea is that users that are "similar" in this vector space, may also share similar movie taste.
+
+We start by transforming our data into said format, we do this using `pivot_wider`. Complete the skeleton below where we create a new data frame `ratings.wide` that follows the above format. **(2pts)**
+
+```{r}
+# ratings.wide = data.ratings %>%
+#   select(userId, movieId, rating) %>%
+#   pivot_wider(
+#     names_from = should be a movie identifier,
+#     values_from = should be a rating number,
+#     values_fill = list(rating = 0)
+# )
+```
+
+
+## Question 16
+
+Your research lead suggest trying out K-means with 5 centers. Run the `kmeans` command on `X` where `X = as.matrix(ratings.wide[, -1])`. **(1pt)**
+
+```{r}
+set.seed(123) # NOTE: don't remove this.
+
+# X = ?
+# res = kmeans(X , centers = ?)
+```
+
+
+## Question 17
+
+The `res$cluster` output from the above result tells us which cluster a user (id 1 to 610) belongs to. For example, if you ran the above code correctly, the user with id 496 belongs to cluster number 2.
+
+Your team lead says we can try to use these clusters for movie recommendations: instead of recommending movies that are ranked high, we recommend movies that are ranked high, _but_ conditional on cluster. Particularly, for all clusters 1 to 5, we can calculate average ratings for all the movies. Then, based on which cluster a user belongs to, we will recommend them highly ranked movies in that cluster that they have previously not seen.
+
+To assess this strategy, your team lead suggest that you show her what the highest ranked movies in each cluster are.
+
+Start by adding a column called `cluster` to the `data.ratings` data set. **(2pts)**
+
+```{r}
+# Create a data frame with cluser and userId info
+# cluster.data = tibble(userId = ratings.wide$userId, cluster = res$cluster)
+
+# Merge this with data.ratings
+# data.ratings = left_join(
+#   data.ratings,
+#   cluster.data,
+#   by = ?
+# )
+```
+
+
+## Question 18
+
+Show the name of the top-3 rated movies for each cluster 1 to 5. HINT: You should see "My Fair Lady (1964)" somewhere in cluster 3's top, and "Intouchables (2011)" somewhere in cluster 5's top. **(6pts)**
+
+```{r}
+# data.ratings %>%
+  # group_by(?, ?) %>%
+  # ...
+```
+
+
+## Question 19
+In this question, you are essentially building your very own "simple" movie recommendation system. For the user with id 414, recommend the top 5 movies according to the average rating in their cluster. **(8pts)**
+
+HINT: To answer this, you need to:
+
+- Find which cluster user 414 belongs to
+
+- Calculate average movie ratings by cluster
+
+- Find out which movies this user have already watched
+
+- Recommend the 5 highest rated movies in the cluster the user belongs to that the user have not already watched
+
+

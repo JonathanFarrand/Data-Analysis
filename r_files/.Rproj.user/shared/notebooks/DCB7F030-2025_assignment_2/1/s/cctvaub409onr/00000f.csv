@@ -1,0 +1,6 @@
+"0","ratings.wide = data.ratings %>%"
+"0","   select(userId, movieId, rating) %>%"
+"0","   pivot_wider("
+"0","     names_from = movieId,"
+"0","     values_from = rating,"
+"0","     values_fill = list(rating = 0))"

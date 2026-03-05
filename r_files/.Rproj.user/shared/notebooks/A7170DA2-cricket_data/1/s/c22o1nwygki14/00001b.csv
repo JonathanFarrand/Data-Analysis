@@ -1,0 +1,5 @@
+"0","team_performance <- team_performance %>%"
+"0","  left_join("
+"0","    ladder %>% select(bat_team = team, season, games, pct), "
+"0","    by = c(""bat_team"", ""season"")"
+"0","  )"

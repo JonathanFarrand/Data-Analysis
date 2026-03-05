@@ -1,0 +1,1 @@
+{"frames":[{"func":"matches %>% pivot_longer(cols = c(bat_team, bowl_team), names_to = \"bat_or_bowl\", \n    values_to = \"team\")","file":"","line_number":0,"end_line_number":0,"character_number":0,"end_character_number":0}],"message":"Error in pivot_longer(., cols = c(bat_team, bowl_team), names_to = \"bat_or_bowl\",  : \n  could not find function \"pivot_longer\"\n"}

@@ -1,0 +1,11 @@
+"0","matches <- t20_leagues %>%"
+"0","  distinct(match_id, .keep_all = TRUE)"
+"0",""
+"0","# Step 2: Reshape so each team has its own row"
+"0","matches_long <- matches %>%"
+"0","  pivot_longer(cols = c(bat_team, bowl_team), "
+"0","               names_to = ""bat_or_bowl"", "
+"0","               values_to = ""team"")"
+"2","Error in pivot_longer(., cols = c(bat_team, bowl_team), names_to = ""bat_or_bowl"",  : 
+  could not find function ""pivot_longer""
+"

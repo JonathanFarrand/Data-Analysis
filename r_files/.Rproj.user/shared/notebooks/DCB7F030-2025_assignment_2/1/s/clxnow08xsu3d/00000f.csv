@@ -1,0 +1,4 @@
+"0","data.movies ="
+"0","  data.movies %>%"
+"0","  separate(genres, into =""main.genre"", sep = ""\\|"", extra = ""drop"")"
+"0","head(data.movies)"

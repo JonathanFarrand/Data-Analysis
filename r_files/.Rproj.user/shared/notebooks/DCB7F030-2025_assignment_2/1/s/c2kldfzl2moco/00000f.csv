@@ -1,0 +1,4 @@
+"0","ratings = ratings |>"
+"0","  left_join(data.movies |> select(movieId, title, main.genre))"
+"2","Joining with `by = join_by(movieId)`"
+"0","head(ratings)"
